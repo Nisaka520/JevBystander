@@ -175,6 +175,28 @@ class SettingsActivity : Activity() {
             toast("重启无障碍服务后生效")
         }
 
+        // 抓屏诊断
+        section("抓屏诊断（读不到消息时用这个）")
+        sub(
+            "用法：在微信聊天页拉下通知栏点「诊断抓屏」；或者点下面这个按钮，然后 3 秒内切回微信。\n" +
+                "导出的是当前窗口的节点结构（类名 / viewId / 坐标 / 文字标志），用来排查『为什么读不到消息』。\n" +
+                "只存在本机，不会自动上传 —— 只有你点「分享」才会发出去。"
+        )
+        button("3 秒后抓取微信窗口") {
+            val svc = WatchService.instance
+            if (svc == null) {
+                toast("无障碍服务没在运行")
+            } else {
+                svc.dumpAfter(3000)
+                toast("好，3 秒内切回微信聊天页")
+            }
+        }
+        button("分享最近一次诊断") { shareDump() }
+        button("把最近诊断显示在日志区") {
+            val d = cfg.lastDump
+            if (d.isEmpty()) toast("还没有诊断数据") else logText.text = d
+        }
+
         // 维护
         section("维护")
         logText = body("")
@@ -189,6 +211,24 @@ class SettingsActivity : Activity() {
             recreate()
         }
         sub("隐私：密钥、联系人表、日志全部只在本机 SharedPreferences 里；没有云端、没有统计、没有第三方 SDK。")
+    }
+
+    private fun shareDump() {
+        val d = cfg.lastDump
+        if (d.isEmpty()) {
+            toast("还没有诊断数据：先去微信里点通知栏「诊断抓屏」", true)
+            return
+        }
+        try {
+            val i = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "旁观者抓屏诊断")
+                putExtra(Intent.EXTRA_TEXT, d)
+            }
+            startActivity(Intent.createChooser(i, "把诊断发给作者"))
+        } catch (e: Exception) {
+            toast("分享失败：${e.message}", true)
+        }
     }
 
     private fun refreshDynamic() {

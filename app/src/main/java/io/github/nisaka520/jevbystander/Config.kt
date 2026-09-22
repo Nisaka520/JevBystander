@@ -68,6 +68,16 @@ class Config(ctx: Context) {
         get() = sp.getString("last_verdict", "").orEmpty()
         set(v) = sp.edit().putString("last_verdict", v).apply()
 
+    /** 最近一次抓屏诊断的原文（只在本机；分享与否由你决定） */
+    var lastDump: String
+        get() = sp.getString("last_dump", "").orEmpty()
+        set(v) = sp.edit().putString("last_dump", v.take(400_000)).apply()
+
+    /** 最近一次诊断文件的路径 */
+    var lastDumpPath: String
+        get() = sp.getString("last_dump_path", "").orEmpty()
+        set(v) = sp.edit().putString("last_dump_path", v).apply()
+
     var contactsJson: String
         get() = sp.getString("contacts", "[]").orEmpty().ifEmpty { "[]" }
         set(v) = sp.edit().putString("contacts", v).apply()

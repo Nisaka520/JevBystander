@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
+import java.io.File
 
 /**
  * 无障碍服务：**只订阅微信**，只读窗口内容。
@@ -94,6 +95,34 @@ class WatchService : AccessibilityService() {
         Analyzer.run(this, d, manual)
     }
 
+    /**
+     * 抓屏诊断：把当前微信窗口的无障碍树原样存一份，供排查"读不到消息"。
+     *
+     * 只在本地落盘 + 存进设置里，**不会自动发出去**；要发给作者得自己在设置页点「分享」。
+     */
+    fun dumpNow() {
+        try {
+            val text = WeChatReader.dump(this)
+            val cfg = Config(this)
+            cfg.lastDump = text
+            val dir = getExternalFilesDir(null) ?: filesDir
+            val f = File(dir, "jev-dump-" + System.currentTimeMillis() + ".txt")
+            f.writeText(text)
+            cfg.lastDumpPath = f.absolutePath
+            val n = text.count { it == '\n' }
+            AppLog.add("抓屏诊断已保存：${f.absolutePath}（$n 行）")
+            Toast3.toast(this, "诊断已保存（$n 行）·  回「旁观者」设置页点『分享最近诊断』", true)
+        } catch (e: Exception) {
+            AppLog.add("抓屏诊断失败：${e.message}")
+            Toast3.toast(this, "诊断失败：" + e.message, true)
+        }
+    }
+
+    /** 延时抓诊断：给"点完按钮再切回微信"留出时间 */
+    fun dumpAfter(delayMs: Long) {
+        handler.postDelayed({ dumpNow() }, delayMs)
+    }
+
     override fun onInterrupt() {
         AppLog.add("无障碍服务被中断")
     }
@@ -130,6 +159,10 @@ class WatchService : AccessibilityService() {
                 this, 2, Intent(this, AnalyzeReceiver::class.java).setAction(AnalyzeReceiver.ACTION_NOW),
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
+            val dumpNow = PendingIntent.getBroadcast(
+                this, 3, Intent(this, AnalyzeReceiver::class.java).setAction(AnalyzeReceiver.ACTION_DUMP),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
             val n = Notification.Builder(this, CH_ID)
                 .setSmallIcon(R.drawable.ic_tile)
                 .setContentTitle("旁观者已就绪")
@@ -138,6 +171,7 @@ class WatchService : AccessibilityService() {
                 .setShowWhen(false)
                 .setContentIntent(open)
                 .addAction(Notification.Action.Builder(android.R.drawable.ic_menu_view, "判读一下", runNow).build())
+                .addAction(Notification.Action.Builder(android.R.drawable.ic_menu_search, "诊断抓屏", dumpNow).build())
                 .build()
             nm.notify(NOTI_ID, n)
         } catch (e: Exception) {

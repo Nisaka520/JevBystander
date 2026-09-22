@@ -31,8 +31,18 @@ object Analyzer {
         val target = digest.latestPeerMessage()
         if (target == null) {
             running.set(false)
-            if (manual) Toast3.toast(ctx, "这个窗口里没看到对方发的消息", true)
-            AppLog.add("抓屏结果里没有对方消息（标题=${digest.title}，共 ${digest.msgs.size} 行）")
+            if (manual) {
+                Toast3.toast(
+                    ctx,
+                    if (digest.msgs.isEmpty()) "这个窗口没读到任何消息文字（点通知栏「诊断抓屏」导出发我）"
+                    else "读到了 ${digest.msgs.size} 条，但都像是我自己发的（点「诊断抓屏」导出）",
+                    true
+                )
+            }
+            AppLog.add(
+                "抓屏结果里没有对方消息（标题=「${digest.title}」，共 ${digest.msgs.size} 条）：" +
+                    digest.msgs.takeLast(6).joinToString(" | ") { (if (it.mine) "我:" else "对方:") + it.text.take(20) }
+            )
             return
         }
 
