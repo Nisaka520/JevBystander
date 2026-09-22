@@ -61,6 +61,9 @@
 > CI 和 Release 里挂的是 **debug 签名**的 APK（能直接装，适合自用）。
 > 要正式签名自己出一版：`keytool` 生成 keystore 后配置 `signingConfigs`，
 > 或把 keystore 用 GitHub Secrets 传给 CI。
+>
+> **升级须知**：仓库里的 `keystore/debug.keystore` 是**公开的调试签名**，本地构建和 CI 共用它，
+> 所以从 v1.0.2 起可以直接覆盖安装。**v1.0.1 及更早的包签名不同，第一次升级请先卸载旧版。**
 
 **方式 B：自己 build**（需要 JDK 17 + Android SDK 35）
 
