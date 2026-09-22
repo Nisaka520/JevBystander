@@ -43,8 +43,14 @@
 
 ## 安装
 
-**方式 A：下载 APK**（每次 push 都会自动构建，见 [Actions](../../actions) → 最新一次 → Artifacts `JevBystander-apk`；
-正式版在 [Releases](../../releases)）。
+**方式 A：下载 APK**（不用装 Android SDK）
+
+- 每次 push 都会在 [Actions](../../actions) 里构建，最新一次的 Artifacts 里有 `JevBystander-apk`；
+- 打 tag（`v1.0.0` 这种）会自动发 [Release](../../releases) 并附上 APK。
+
+> CI 和 Release 里挂的是 **debug 签名**的 APK（能直接装，适合自用）。
+> 要正式签名自己出一版：`keytool` 生成 keystore 后配置 `signingConfigs`，
+> 或把 keystore 用 GitHub Secrets 传给 CI。
 
 **方式 B：自己 build**（需要 JDK 17 + Android SDK 35）
 
@@ -130,7 +136,13 @@ cd JevBystander
 ```bash
 ./gradlew testDebugUnitTest     # 纯逻辑层：JSON/题目构造/解析/关系匹配/抓屏组装
 python test/check_secrets.py    # 提交前自检
+
+# 端到端冒烟（真的打一次 api.typesafe.ai，默认跳过，不设密钥不会发请求）
+JEV_KEY=apikey_… ./gradlew testDebugUnitTest --tests '*LiveJevSmokeTest*'
 ```
+
+本地实测（2026-09，真接口）：`意图：催促进度或催回复 86%` / `情绪：着急 66% · 平静 24% · 焦虑 9%` /
+`着急：一般 · 1.37/3` / `建议：正常交流 98%`，耗时 **0.97 秒**。
 
 代码布局（`app/src/main/java/io/github/nisaka520/jevbystander/`）：
 

@@ -49,3 +49,12 @@ dependencies {
     // 运行期零第三方依赖：JSON 用手写的 Json.kt，网络用 HttpURLConnection，UI 用原生 View
     testImplementation("junit:junit:4.13.2")
 }
+
+// 单测输出中文，Windows 上默认编码会乱，锁成 UTF-8；顺便把 println 显示出来
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    systemProperty("file.encoding", "UTF-8")
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+}
