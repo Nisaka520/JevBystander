@@ -213,6 +213,13 @@ JEV_KEY=apikey_… ./gradlew testDebugUnitTest --tests '*LiveJevSmokeTest*'
 
 前 5 个文件**不碰 Android SDK**，所以整套判定逻辑可以在电脑上跑单测 —— 这也是从姊姊项目 JevIntent 学来的做法。
 
+## 构建说明（诚实交代）
+
+- **本项目是在 AI 编程助手（DeepSeek Harness 上的编码 Agent）协作下完成的**：架构取舍、判定口径、
+  边界（只读 / 不发送 / 只做单聊）与最终验收由作者决定，代码、文案、界面在人工评审后提交。
+- 仓库里有 **35 个单元测试**（纯逻辑层不依赖 Android SDK）和一个真接口端到端冒烟测试，CI 每次 push 都跑。
+- 它是 [JevIntent](https://github.com/Nisaka520/JevIntent) 的姊妹项目，两套实现完全独立；灵感来源与差异见上。
+
 ## License
 
 MIT © Nisaka520 · 判读模型由 [TypeSafe Jev](https://typesafe.ai) 提供，本项目与之无隶属关系。
