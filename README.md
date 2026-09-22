@@ -5,6 +5,16 @@
 
 安卓无障碍应用，**零第三方依赖**（只有一个 APK，无 AndroidX、无 ML Kit、无网络库）。
 
+[![Release](https://img.shields.io/github/v/release/Nisaka520/JevBystander?color=4c9aff)](../../releases/latest)
+[![build](https://github.com/Nisaka520/JevBystander/actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
+![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84)
+![APK](https://img.shields.io/badge/APK-861%20KB-blue)
+![依赖](https://img.shields.io/badge/依赖-零个-brightgreen)
+[![License](https://img.shields.io/github/license/Nisaka520/JevBystander)](LICENSE)
+
+**⬇ [下载最新 APK](https://github.com/Nisaka520/JevBystander/releases/latest/download/JevBystander-debug.apk)**（861 KB · Android 8.0+ 直装）
+· 🌐 [产品页](https://nisaka520.github.io/JevBystander/) · 📝 [更新日志](CHANGELOG.md)
+
 ---
 
 ## 它是什么
@@ -131,6 +141,48 @@ cd JevBystander
 - **判定不是事实**：Jev 给的是概率分布，第一名低于 40% 时请**看前三名**，别只看第一名。
 - **英文题目更自信但会漂**（见上），想稳就用默认中文。
 
+## 常见问题
+
+<details><summary><b>为什么只看得到一部分消息？</b></summary>
+
+因为只读屏幕上**已经显示出来**的文字。长消息被折叠、图片/语音/文件都读不到。
+想要无死角判读，看姊妹项目 [JevIntent](https://github.com/Nisaka520/JevIntent)（Xposed 插件版，能长按任意消息判）。
+
+</details>
+
+<details><summary><b>会被微信封号吗？</b></summary>
+
+不改微信、不注入、不发送、不读非当前窗口的内容，只做系统级读屏（和读屏软件同一套机制），
+风险远低于 hook 类插件。但任何第三方工具都不存在「官方保证」。
+
+</details>
+
+<details><summary><b>国产 ROM 上过一会儿就不动了？</b></summary>
+
+省电策略把无障碍服务杀了。去系统设置给「旁观者」加自启动/后台白名单，电池优化设成「不限制」。
+
+</details>
+
+<details><summary><b>密钥要钱吗？怎么领？</b></summary>
+
+在 [console.typesafe.ai](https://console.typesafe.ai/api-keys) 免费注册领取（Google 或邮箱验证码登录，**不用等审批**），
+注册完直接建 key。用量计费以官方为准，本项目与之无隶属关系。
+
+</details>
+
+<details><summary><b>能不能加群聊 / QQ / 飞书？</b></summary>
+
+群聊需要判断「这条是谁发的」，无障碍树里给不出可靠身份，所以本版本直接不判群聊 —— 宁可不做，也不给错的关系。
+其它 App 需要各自适配，暂时没有计划。
+
+</details>
+
+## 反馈与交流
+
+- 有 bug、有想法、想要新的关系表玩法 → [提 Issue](../../issues)
+- 想聊怎么用、分享自己的关系表配置 → [Discussions](../../discussions)
+- 觉得好用 → 给个 ⭐ 就是最大的支持（也方便别人搜到）
+
 ## 开发
 
 ```bash
@@ -164,3 +216,5 @@ JEV_KEY=apikey_… ./gradlew testDebugUnitTest --tests '*LiveJevSmokeTest*'
 ## License
 
 MIT © Nisaka520 · 判读模型由 [TypeSafe Jev](https://typesafe.ai) 提供，本项目与之无隶属关系。
+
+灵感来源 [jev-chat/jev-chat-jarvis](https://github.com/jev-chat/jev-chat-jarvis)（已在上面逐项列差异并致谢，实现完全独立）。

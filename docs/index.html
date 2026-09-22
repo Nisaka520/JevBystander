@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>旁观者 JevBystander · 微信消息该不该急着回，让 Jev 判一下</title>
+<meta name="description" content="安卓无障碍版微信判读：只读屏幕、只弹 3 条 Toast（意图 / 情绪 / 着急 / 建议），不生成回复文案、不发送、零第三方依赖。">
+<meta property="og:title" content="旁观者 JevBystander">
+<meta property="og:description" content="微信消息该不该急着回？让 Jev 判一下。只读屏、只弹 3 条，不生成文案不发送。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='48' font-size='48'>👁</text></svg>">
+<style>
+  :root{
+    --bg:#0f1319; --card:#171d26; --card2:#1e2632; --line:#28313d;
+    --text:#e8eef7; --dim:#9aa8bb; --brand:#4c9aff; --brand2:#7ee0a8; --warn:#ffb454;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:radial-gradient(1200px 600px at 50% -10%,#1b2634 0%,var(--bg) 60%);
+    color:var(--text); font:16px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:56px 20px 80px}
+  header{text-align:center;margin-bottom:40px}
+  h1{font-size:clamp(30px,6vw,46px);margin:0 0 6px;letter-spacing:.5px}
+  h1 .cat{font-size:.8em}
+  .tag{color:var(--dim);font-size:clamp(15px,2.4vw,19px);margin:0 auto;max-width:620px}
+  .badges{margin:20px 0 0;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .badges img{height:20px}
+  .cta{margin:28px 0 0;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .btn{
+    display:inline-block;padding:13px 26px;border-radius:10px;text-decoration:none;font-weight:600;
+    border:1px solid var(--line);color:var(--text);background:var(--card);transition:.15s;
+  }
+  .btn:hover{transform:translateY(-1px);border-color:var(--brand)}
+  .btn.primary{background:linear-gradient(135deg,#4c9aff,#3b7fe0);border-color:transparent;color:#04101f}
+  .btn small{display:block;font-weight:400;font-size:12px;opacity:.8}
+  section{margin:44px 0}
+  h2{font-size:22px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+  h2::before{content:"";width:4px;height:20px;border-radius:2px;background:var(--brand)}
+  p{color:#cfd9e6}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  /* 手机提示条示意 */
+  .toasts{display:grid;gap:10px;margin:8px 0 0}
+  .toast{
+    background:rgba(28,34,44,.96);border:1px solid var(--line);border-left:3px solid var(--brand);
+    border-radius:10px;padding:12px 14px;font-size:14.5px;white-space:pre-line;
+    box-shadow:0 6px 18px rgba(0,0,0,.35)
+  }
+  .toast.u{border-left-color:var(--warn)}
+  .toast.a{border-left-color:var(--brand2)}
+  .toast .k{color:var(--dim);font-size:12px;display:block;margin-bottom:4px;letter-spacing:.5px}
+  ol.steps{padding-left:22px}
+  ol.steps li{margin:8px 0}
+  code{background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13.5px}
+  pre{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;font-size:13.5px}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+  th{color:var(--dim);font-weight:600}
+  details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:8px 0}
+  summary{cursor:pointer;font-weight:600}
+  details p{color:var(--dim);margin:10px 0 0}
+  .no{list-style:none;padding:0;margin:0}
+  .no li{padding:5px 0;color:#cfd9e6}
+  .no li::before{content:"✕";color:#ff6b6b;margin-right:8px;font-weight:700}
+  .yes li::before{content:"✓";color:var(--brand2)}
+  footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-size:13.5px}
+  a{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1><span class="cat">👁</span> 旁观者 · JevBystander</h1>
+    <p class="tag">微信里那句「在吗？」到底着不着急、该用什么姿态回？<br>点一下，让 <a href="https://typesafe.ai" target="_blank" rel="noopener">Jev</a> 判一次 —— <b>只弹 3 条提示</b>，不生成回复、不替你发消息。</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/v/release/Nisaka520/JevBystander?color=4c9aff" alt="Release">
+      <img src="https://img.shields.io/github/actions/workflow/status/Nisaka520/JevBystander/build.yml?label=build" alt="Build">
+      <img src="https://img.shields.io/badge/Android-8.0%2B-3DDC84" alt="Android 8.0+">
+      <img src="https://img.shields.io/badge/APK-861%20KB-blue" alt="861 KB">
+      <img src="https://img.shields.io/badge/依赖-零个-brightgreen" alt="零依赖">
+      <img src="https://img.shields.io/github/license/Nisaka520/JevBystander" alt="MIT">
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Nisaka520/JevBystander/releases/latest/download/JevBystander-debug.apk">⬇ 下载 APK<small>861 KB · 直装 · Android 8.0+</small></a>
+      <a class="btn" href="https://github.com/Nisaka520/JevBystander">看源码<small>Kotlin · MIT · 零第三方依赖</small></a>
+    </div>
+  </header>
+
+  <section>
+    <h2>就长这样</h2>
+    <div class="toasts">
+      <div class="toast"><span class="k">① 意图 + 情绪分布</span>意图：催促进度或催回复 86%
+情绪：着急 66% · 平静 24% · 焦虑 9%</div>
+      <div class="toast u"><span class="k">② 着急程度</span>着急：一般 · 1.37/3</div>
+      <div class="toast a"><span class="k">③ 建议姿态</span>建议：正常交流 98%</div>
+    </div>
+    <p style="font-size:14px;color:var(--dim);margin-top:12px">真实输出（同一个聊天窗口，判读耗时 0.97 秒）。情绪是<b>一次判定的完整概率分布</b>的前几名，不是判了很多次。</p>
+  </section>
+
+  <section>
+    <h2>三步用起来</h2>
+    <div class="card">
+      <ol class="steps">
+        <li>下载 APK 装上 → 打开「旁观者」</li>
+        <li>点「打开无障碍设置」→ 启用 <b>旁观者 · 微信判读</b>；回来贴上自己的 Jev 密钥（<a href="https://console.typesafe.ai/api-keys" target="_blank" rel="noopener">在这里领</a>，免费注册不用审批）→ 点「测试密钥」</li>
+        <li>微信单聊里 → 下拉通知栏点磁贴「旁观一下」（或按无害快捷键），3 条提示就弹出来了</li>
+      </ol>
+      <p style="margin-bottom:0">想让它自己动？设置里开「自动判读」，检测到对方新消息就判（带防抖，同一条不会重复判）。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>它不做什么（这很重要）</h2>
+    <div class="card">
+      <ul class="no">
+        <li>不生成回复文案 —— 一个字都不生成，怎么回是你的事</li>
+        <li>不填入输入框、不点击、不发送 —— 全代码里没有任何注入/发送能力</li>
+        <li>不截屏、不做 OCR、不读其它 App、不上传任何东西</li>
+        <li>不要 root、不装 Xposed、不改微信 —— 只用系统无障碍读当前屏幕</li>
+      </ul>
+      <ul class="no yes" style="margin-top:6px">
+        <li>只申请两个权限：联网 + 通知</li>
+        <li>密钥/关系表/日志全在本机，卸载即消失</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>关系表：同一句「我爱你」，判读完全不同</h2>
+    <div class="card">
+      <p>设置里一行一个，用会话标题或昵称匹配，命中最长的别名生效：</p>
+      <pre>妈妈,妈,老妈=家人/女/生日三月
+张伟,伟哥,老张=同事/男/市场部</pre>
+      <p style="margin-bottom:0">备注会作为背景一起送进判定 —— 情侣说的和同事说的，Jev 给的概率分布天然不同。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>跟「Jev 聊天助手」是什么关系</h2>
+    <p>思路的启发来源是 <a href="https://github.com/jev-chat/jev-chat-jarvis" target="_blank" rel="noopener">jev-chat/jev-chat-jarvis</a> —— 它证明了「无障碍读屏 + Jev 判定」在安卓上跑得通，在此致谢。但本项目是<b>独立实现</b>：代码、文案、命名、界面、图标全部自己写，一行都没抄，产品定位也不一样。</p>
+    <table>
+      <tr><th>维度</th><th>Jev 聊天助手</th><th>旁观者</th></tr>
+      <tr><td>输出</td><td>悬浮窗 + 3 条候选回复（要第二个文本模型）</td><td><b>只有 3 条 Toast</b>，不生成任何文案</td></tr>
+      <tr><td>采集</td><td>无障碍树 + 截图 ML Kit OCR（APK 27 MB）</td><td>只读无障碍树，<b>不截屏</b></td></tr>
+      <tr><td>依赖</td><td>Kotlin + AndroidX + ML Kit</td><td><b>零第三方依赖</b>（手写 JSON + HttpURLConnection + 原生 View）→ 861 KB</td></tr>
+      <tr><td>关系</td><td>联系人表 + 知识库 + 历史记录</td><td>联系人表（别名 → 关系/性别/备注），无知识库</td></tr>
+      <tr><td>场景</td><td>微信/QQ/X/飞书，含群聊</td><td>只做微信单聊</td></tr>
+    </table>
+    <p style="color:var(--dim);font-size:14px">姊妹项目：<a href="https://github.com/Nisaka520/JevIntent" target="_blank" rel="noopener">JevIntent</a> —— 同一个判定口径的 Xposed 插件版（能长按任意消息判读，代价是要 FkWeChat/LSPosed）。两套实现完全独立。</p>
+  </section>
+
+  <section>
+    <h2>常见问题</h2>
+    <details><summary>为什么只看得到一部分消息？</summary><p>因为只读屏幕上<b>已经显示出来</b>的文字。长消息被折叠、图片/语音/文件都读不到。想要无死角判读请看插件版 JevIntent。</p></details>
+    <details><summary>题目该用中文还是英文？</summary><p>默认中文。我们跑了 90 次真实调用做 A/B：英文题目的客观分并不更高（0.938 vs 0.945），只是置信度更高（0.905 vs 0.808），代价是标签与中文有 35% 不一致。想自己复现就把设置里的语言档换来换去。</p></details>
+    <details><summary>会被微信封号吗？</summary><p>不修改微信、不注入、不发送、不读取非当前窗口的内容，只做系统级读屏（和读屏软件同一套机制）。风险远低于 hook 类插件，但任何第三方工具都不存在「官方保证」。</p></details>
+    <details><summary>国产 ROM 上过一会儿就不动了？</summary><p>省电策略杀了无障碍服务。去系统设置里给「旁观者」加自启动/后台白名单，并把电池优化设为「不限制」。</p></details>
+    <details><summary>密钥要钱吗？</summary><p>Jev 的密钥在 <a href="https://console.typesafe.ai/api-keys" target="_blank" rel="noopener">console.typesafe.ai</a> 免费注册领取（Google 或邮箱验证码登录，不用等审批）。用量与计费以官方为准，本项目与之无隶属关系。</p></details>
+  </section>
+
+  <section>
+    <h2>自己编译</h2>
+    <pre>git clone https://github.com/Nisaka520/JevBystander.git
+cd JevBystander
+./gradlew assembleDebug     # app/build/outputs/apk/debug/app-debug.apk
+./gradlew testDebugUnitTest # 35 个单测，不用真机</pre>
+    <p style="color:var(--dim);font-size:14px;margin-bottom:0">纯逻辑层（JSON/题目/解析/关系匹配/抓屏组装）不依赖 Android SDK，所以整套判定逻辑在电脑上就能测 —— 还带一个真接口端到端冒烟测试。</p>
+  </section>
+
+  <footer>
+    MIT © Nisaka520 · 判读模型由 <a href="https://typesafe.ai" target="_blank" rel="noopener">TypeSafe Jev</a> 提供，本项目与之无隶属关系 · 灵感来源 <a href="https://github.com/jev-chat/jev-chat-jarvis" target="_blank" rel="noopener">jev-chat-jarvis</a>（已致谢，实现完全独立）<br>
+    问题、想法、想加的关系表玩法：<a href="https://github.com/Nisaka520/JevBystander/issues" target="_blank" rel="noopener">提 Issue</a> 或 <a href="https://github.com/Nisaka520/JevBystander/discussions" target="_blank" rel="noopener">来 Discussions 聊</a>
+  </footer>
+
+</div>
+</body>
+</html>
