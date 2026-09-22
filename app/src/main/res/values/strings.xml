@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">旁观者</string>
+    <string name="service_label">旁观者 · 微信判读</string>
+    <string name="tile_label">旁观一下</string>
+    <string name="a11y_desc">只读取微信当前聊天窗口里已经显示出来的文字，用来判断对方的意图与情绪。不修改、不发送任何消息，也不截屏。</string>
+</resources>

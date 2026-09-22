@@ -1,0 +1,19 @@
+# 构建产物
+build/
+app/build/
+.gradle/
+local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# 本机杂项
+dist/
+*.log
+captures/
