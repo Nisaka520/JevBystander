@@ -15,7 +15,6 @@
 **⬇ [下载最新 APK](https://github.com/Nisaka520/JevBystander/releases/latest/download/JevBystander-debug.apk)**（861 KB · Android 8.0+ 直装）
 · 🌐 [产品页](https://nisaka520.github.io/JevBystander/) · 📝 [更新日志](CHANGELOG.md)
 
----
 
 ## 它是什么
 
